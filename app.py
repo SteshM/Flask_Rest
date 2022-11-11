@@ -5,12 +5,6 @@ from flask_marshmallow import Marshmallow
 import os
 # Init app
 app = Flask(__name__)
- # Run Server
-if __name__== '_main_':
-  app.run(debug=True)
-
-#Init app
-app = Flask(__name__)
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 #Database
@@ -21,7 +15,7 @@ db = SQLAlchemy(app)
 # Init na
 ma = Marshmallow(app)
 
-# Product Class/Model
+   # Product Class/Model
 class Product(db.Model):
   id = db.Column(db.String(100), primary_key=True)
   name = db.Column(db.String(100), unique=True)
@@ -35,7 +29,23 @@ class Product(db.Model):
      self.price = price
      self.qyt = qty
 
- 
+     #product schema
+     class ProductSchema(ma.Schema):
+      class meta:
+         fields = ('id', 'name', 'description', 'price','qty')
+
+      #init schema
+      product_schema = productSchema(strict=True)
+      products_schema = productSchema(many=True, strict=True)
+
+     # Run Server
+if __name__== '_main_':
+  app.run(debug=True)
+
+
+
+
+
 
 
 
