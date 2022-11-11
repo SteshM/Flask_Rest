@@ -17,11 +17,11 @@ ma = Marshmallow(app)
 
    # Product Class/Model
 class Product(db.Model):
-  id = db.Column(db.String(100), primary_key=True)
+  id = db.Column(db.Integer, primary_key=True, autoincrement=True)
   name = db.Column(db.String(100), unique=True)
   description = db.column(db.String(200))
   price = db.Column(db.Float)
-  qty = db.Column(db. Integer)
+  qty = db.Column(db.Integer)
 
   def __init__(self,name,description,price,qty):
      self.name = name
@@ -30,14 +30,28 @@ class Product(db.Model):
      self.qyt = qty
 
      #product schema
-     class ProductSchema(ma.Schema):
-      class meta:
-         fields = ('id', 'name', 'description', 'price','qty')
+class ProductSchema(ma.Schema):
+   class meta:
+      fields = ('id', 'name', 'description', 'price','qty')
 
       #init schema
-      product_schema = productSchema(strict=True)
-      products_schema = productSchema(many=True, strict=True)
+product_schema = ProductSchema()
+products_schema = ProductSchema(many=True)
 
+     #Create a Product
+@app.route('/product',methods=['POST'] )
+def add_product():
+   name = request.json['name']
+   description = request.json['description']
+   price = request.json['price']
+   qty = request.json['qty']
+
+   new_product = Product(name, description,price,qty)
+
+   db.session.add(new_product)
+   db.session.commit()
+
+   return product_schema.jsonify(new_product)
      # Run Server
 if __name__== '_main_':
   app.run(debug=True)
