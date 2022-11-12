@@ -19,7 +19,7 @@ ma = Marshmallow(app)
 class Product(db.Model):
   id = db.Column(db.Integer, primary_key=True, autoincrement=True)
   name = db.Column(db.String(100), unique=True)
-  description = db.column(db.String(200))
+  description = db.Column(db.String(200))
   price = db.Column(db.Float)
   qty = db.Column(db.Integer)
 
@@ -31,7 +31,7 @@ class Product(db.Model):
 
      #product schema
 class ProductSchema(ma.Schema):
-   class meta:
+   class Meta:
       fields = ('id', 'name', 'description', 'price','qty')
 
       #init schema
