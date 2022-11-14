@@ -3,6 +3,7 @@ from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 import os
+import logging
 # Init app
 app = Flask(__name__)
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -25,9 +26,9 @@ class Product(db.Model):
 
   def __init__(self,name,description,price,qty):
      self.name = name
-     self.deseription = description
+     self.description = description
      self.price = price
-     self.qyt = qty
+     self.qty = qty
 
      #product schema
 class ProductSchema(ma.Schema):
@@ -41,10 +42,15 @@ products_schema = ProductSchema(many=True)
      #Create a Product
 @app.route('/product',methods=['POST'] )
 def add_product():
+   app.logger.info("This method is used to POST")
    name = request.json['name']
+   app.logger.info("about to add a product with name %s", name)
    description = request.json['description']
+   app.logger.info("about to add a product with description %s", description)
    price = request.json['price']
+   app.logger.info("about to add a product with price %s", price)
    qty = request.json['qty']
+   app.logger.info("about to add a product with qty %s", qty)
 
    new_product = Product(name, description,price,qty)
 
@@ -52,6 +58,19 @@ def add_product():
    db.session.commit()
 
    return product_schema.jsonify(new_product)
+
+     #Get all products
+@app.route('/product', methods=['GET'])
+def get_products():
+   app.logger.info("The method used is GET", request.method)
+
+   all_products = Product.query.all()
+   result = products_schema.dump(all_products)
+   
+
+
+   return jsonify(result)
+
      # Run Server
 if __name__== '_main_':
   app.run(debug=True)
@@ -61,6 +80,3 @@ if __name__== '_main_':
 
 
 
-
-
-  
