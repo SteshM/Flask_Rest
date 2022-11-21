@@ -24,13 +24,13 @@ class Product(db.Model):
   description = db.Column(db.String(200))
   price = db.Column(db.Float)
   qty = db.Column(db.Integer)
-
+  
   def __init__(self,name,description,price,qty):
      self.name = name
      self.description = description
      self.price = price
      self.qty = qty
-
+   
      #product schema
 class ProductSchema(ma.Schema):
    class Meta:
@@ -41,37 +41,36 @@ product_schema = ProductSchema()
 products_schema = ProductSchema(many=True)
 
      #Create a Product
-@app.route('/product',methods=['POST'] )
+@app.route('/product',methods=['POST'] ) #This is a decorator that exposes endpoint which is a post
 def add_product():
    app.logger.info("This method is used to POST")
    name = request.json['name']
    app.logger.info("about to add a product with name %s", name)
    description = request.json['description']
    app.logger.info("about to add a product with description %s", description)
-   price = request.json['price']
+   price = request.json['price']#price is a variable, we are assigning it the value of the parameter price. in our json request.
    app.logger.info("about to add a product with price %s", price)
    qty = request.json['qty']
    app.logger.info("about to add a product with qty %s", qty)
+   new_product = Product(name, description,price,qty)#new_product is a variable of type product
 
-   new_product = Product(name, description,price,qty)
+   db.session.add(new_product)#insert record in the db
+   db.session.commit()#commits the record 
 
-   db.session.add(new_product)
-   db.session.commit()
-
-   return product_schema.jsonify(new_product)
+   return product_schema.jsonify(new_product)# return json response
 
      #Get all products
 @app.route('/product', methods=['GET'])
 def get_products():
    app.logger.info("The method used is GET", request.method)
 
-   all_products = Product.query.all()
+   all_products = Product.query.all()#all_products is a collection of products(list,arraylist)
    result = products_schema.dump(all_products)
 
    return jsonify(result)
 
    #Get a single product
-@app.route('/product/<id>', methods=['GET'])
+@app.route('/product/<id>', methods=['GET'])#id is a path variable
 def get_product(id):
    product = Product.query.get(id)
    return product_schema.jsonify(product)
@@ -102,6 +101,25 @@ def delete_product(id):
       db.session.commit()
 
       return product_schema.jsonify(product)
+
+   #total product Cost
+@app.route('/product/price/<id>', methods=['GET'])#id is a path variable
+def get_product_price(id):
+   product = Product.query.get(id)
+   name = product.name
+   app.logger.info("retrieved product name %s",name) 
+   desc = product.description
+   price = product.price
+   qty = product.qty
+   total_price = qty * price
+   app.logger.info("This is the total price : %s",total_price)
+   data = {
+            "name" : name ,
+            "description":desc,
+            "totalPrice": total_price
+        }#created a dictionary and we are jsonifying it
+  
+   return jsonify(data)
 
 
       #Error handler
